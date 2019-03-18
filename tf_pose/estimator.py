@@ -232,6 +232,43 @@ class Human:
                 "w": _round(x2 - x),
                 "h": _round(y2 - y)}
 
+
+    def get_body_box(self, img_w, img_h):
+        """
+        Get body box compared to img size (w, h)
+        :param img_w:
+        :param img_h:
+        :return:
+        """
+
+        if not (img_w > 0 and img_h > 0):
+            raise Exception("img size should be positive")
+
+        _THRESHOLD_PART_CONFIDENCE = 0.3
+        parts = [part for idx, part in self.body_parts.items() if part.score > _THRESHOLD_PART_CONFIDENCE]
+
+        if len(parts) < 5:
+            return None
+
+        # Initial Bounding Box
+        x = min([part.x for part in parts])
+        y = min([part.y for part in parts])
+        x2 = max([part.x for part in parts])
+        y2 = max([part.y for part in parts])
+
+        # fit into the image frame
+        x = max(0, x)
+        y = max(0, y)
+        x2 = min(img_w - x, x2 - x) + x
+        y2 = min(img_h - y, y2 - y) + y
+
+        if _round(x2 - x) == 0.0 or _round(y2 - y) == 0.0:
+            return None
+        return {"x": _round((x + x2) / 2),
+                "y": _round((y + y2) / 2),
+                "w": _round(x2 - x),
+                "h": _round(y2 - y)}
+
     def __str__(self):
         return ' '.join([str(x) for x in self.body_parts.values()])
 
