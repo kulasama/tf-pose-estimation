@@ -246,22 +246,22 @@ class Human:
 
         _THRESHOLD_PART_CONFIDENCE = 0.3
         parts = [part for idx, part in self.body_parts.items() if part.score > _THRESHOLD_PART_CONFIDENCE]
-
-        if len(parts) < 5:
+        part_coords = [(img_w * part.x, img_h * part.y) for part in parts]
+        if len(part_coords) < 5:
             return None
 
         # Initial Bounding Box
-        x = min([part.x for part in parts])
-        y = min([part.y for part in parts])
-        x2 = max([part.x for part in parts])
-        y2 = max([part.y for part in parts])
+        x = min([part[0] for part in part_coords])
+        y = min([part[1] for part in part_coords])
+        x2 = max([part[0] for part in part_coords])
+        y2 = max([part[1] for part in part_coords])
 
         # fit into the image frame
         x = max(0, x)
         y = max(0, y)
         x2 = min(img_w - x, x2 - x) + x
         y2 = min(img_h - y, y2 - y) + y
-
+        print(x,y,x2,y2)
         if _round(x2 - x) == 0.0 or _round(y2 - y) == 0.0:
             return None
         return {"x": _round((x + x2) / 2),
